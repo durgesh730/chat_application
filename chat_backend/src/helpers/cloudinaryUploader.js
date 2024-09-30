@@ -1,4 +1,4 @@
-const cloudinary = require('../config/cloudinaryConfig');
+const cloudinary = require('../utils/cloudinaryConfig');
 
 /**
  * Uploads an image to Cloudinary
