@@ -3,11 +3,12 @@ import Message from "../features/Message";
 import io from 'socket.io-client';
 import { useAuth } from "../context/AuthContext";
 
-const socket = io('http://localhost:5500');
+// const socket = io('http://localhost:5500');
+const socket = io('https://chat-application-1-b4z4.onrender.com');
 
 const Chat = () => {
   const { receiver, user } = useAuth();
-  const senderId = user._id; 
+  const senderId = user._id;
   const receiverId = receiver?._id;
 
   const [messages, setMessages] = useState([]);
