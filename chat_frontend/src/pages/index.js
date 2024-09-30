@@ -1,7 +1,8 @@
-import React, { useEffect, useRef, useState, useCallback } from "react";
-import Message from "../features/Message";
 import io from 'socket.io-client';
+import Message from "../features/Message";
+import React, { useEffect, useRef, useState, useCallback } from "react";
 import { useAuth } from "../context/AuthContext";
+import LongMenu from "../component/custom/LongMenu";
 
 // const socket = io('http://localhost:5500');
 const socket = io('https://chat-application-1-b4z4.onrender.com');
@@ -10,10 +11,10 @@ const Chat = () => {
   const { receiver, user } = useAuth();
   const senderId = user._id;
   const receiverId = receiver?._id;
-
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState("");
   const messagesEndRef = useRef(null);
+  const [profileOpenDrawer, setProfileOpenDrawer] = useState(false)
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -81,24 +82,40 @@ const Chat = () => {
           console.error("Message sending failed", error);
         }
       });
-
       // Clear input after sending
       setInputMessage("");
     }
   }, [inputMessage, receiverId, senderId]);
 
+  const handleOptions = (option) => {
+    setProfileOpenDrawer(true)
+    console.log('Selected option:', option);
+  };
+
+  const options = [
+    { id: 1, title: 'Info', color: 'black', line: true },
+    { id: 2, title: 'Clear Chat', color: 'black', line: false },
+  ];
+
+
   return (
     <>
-      <div className="sticky py-2 px-2 top-0 flex items-center rounded-md space-x-3 mb-2 shadow-xl bg-white">
-        <img
-          src={receiver?.profile_image}
-          alt={receiver?.name || "User"}
-          className="w-12 h-12 rounded-full"
-        />
-        <div>
-          <h2 className="text-md font-semibold">{receiver?.name}</h2>
-          <span className="text-sm text-green-500">Online</span>
+      <div className="sticky py-2 px-2 top-0 flex items-center justify-between rounded-md space-x-3 mb-2 shadow-xl bg-white">
+        <div className=" flex items-center gap-2 ">
+          <img
+            src={receiver?.profile_image}
+            alt={receiver?.name || "User"}
+            className="w-12 h-12 rounded-full"
+          />
+          <div>
+            <span className="text-md font-semibold">{receiver?.name}</span><br />
+            <span className="text-xs text-green-500">Online</span>
+          </div>
         </div>
+
+        {/* <div> */}
+          <LongMenu options={options} handleOptions={handleOptions} />
+        {/* </div> */}
       </div>
 
       <div className="flex flex-col px-6 pb-4 pt-4 h-screen">

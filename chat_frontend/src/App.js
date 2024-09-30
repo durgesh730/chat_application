@@ -1,6 +1,5 @@
 import Dashboard from "./pages";
 import Login from "./features/auth/Login";
-import Profile from "./features/auth/Profile";
 import Register from "./features/auth/Register";
 import ProtectedRoute from "./features/ProtectedRoute";
 import NotFound from "./component/ui/notFound/NotFound";
@@ -19,11 +18,6 @@ function App() {
         <Route path="/" element={
           <ProtectedRoute >
             <Dashboard />
-          </ProtectedRoute>}
-        />
-        <Route path="/profile" element={
-          <ProtectedRoute>
-            <Profile />
           </ProtectedRoute>}
         />
         <Route path="*" element={<NotFound />} />

@@ -11,7 +11,6 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     fetcher.get("/auth/valid_user")
       .then((res) => {
-        // console.log("res in side context  ========>>>>>>", res)
         if (res?.data?.success) {
           const user = res.data.data
           setUser(user)
@@ -29,17 +28,10 @@ export const AuthProvider = ({ children }) => {
     window.location.href = '/login'
   };
 
-  console.log("user ===========>>>>>>>>>>", user)
-  console.log("isAuthenticated ========>>>>", isAuthenticated)
-
   return (
     <AuthContext.Provider value={{
-      isAuthenticated,
-      setIsAuthenticated,
-      logout,
-      user,
-      setUser,
-      setReceiver,
+      isAuthenticated, setIsAuthenticated,
+      logout, user, setUser, setReceiver,
       receiver
     }}>
       {children}

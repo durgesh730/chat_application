@@ -26,6 +26,16 @@ const setupSocketIO = (server) => {
       console.log(`User ${senderId} and ${receiverId} joined room ${roomId}`);
     });
 
+    socket.on("typing", (receiverId, senderId) => {
+      const roomId = generateRoomId(senderId, receiverId);
+      socket.in(roomId).emit("typing")
+    })
+
+    socket.on("stop typing", (receiverId, senderId) => {
+      const roomId = generateRoomId(senderId, receiverId);
+      socket.in(roomId).emit("stop typing")
+    })
+
     // When a new message is received, save to DB and emit to both users' room
     socket.on('newMessage', async (data) => {
       const { receiverId, senderId, message } = data;

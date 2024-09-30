@@ -7,12 +7,39 @@ import ListItemText from "@mui/material/ListItemText";
 import SearchInput from "../../custom/SearchInput";
 import { useGetAllUser } from "../../../hooks/auth/auth";
 import { useAuth } from "../../../context/AuthContext";
+import EditIcon from '@mui/icons-material/Edit';
+import Logout from '@mui/icons-material/Logout';
+import LongMenu from "../../custom/LongMenu";
+
 
 const drawerWidth = 340;
 export default function SideDrawer() {
     const [active, setActive] = React.useState("allStocks")
     const { state } = useGetAllUser()
     const { setReceiver } = useAuth()
+
+    const handleOptions = (option) => {
+        console.log('Selected option:', option);
+        // Add your handling logic here (e.g., edit or delete action)
+    };
+
+    const options = [
+        {
+            id: 1,
+            title: 'Profile',
+            icon: <EditIcon />,
+            color: 'black',
+            line: false,
+        },
+        {
+            id: 2,
+            title: 'Logout',
+            icon: <Logout />,
+            color: 'red',
+            line: false,
+        },
+    ];
+
     return (
         <>
             <Box
@@ -27,16 +54,21 @@ export default function SideDrawer() {
                 className="border-0 "
                 square
             >
+                <div className="md:flex flex-row justify-center items-center px-0 py-2">
+                    <LongMenu options={options} handleOptions={handleOptions} />
+                    <SearchInput />
+                </div>
                 <Box sx={{ overflow: "auto" }}>
-                    <div className=" px-4 py-2">
-                        <SearchInput />
-                    </div>
                     <List>
                         {state && state.data.map((item, index) => {
                             return (
                                 <ListItem className={` ${active == index ? "bg-[--active-purple-color]" : "bg-white"} rounded-r-md`} disablePadding>
                                     <ListItemButton onClick={() => { setReceiver(item); setActive(index) }}>
-                                        {/* <WarehouseIcon className={` ${active == index ? "text-white" : "text-gray-600"}`} /> */}
+                                        <img
+                                            src={item?.profile_image}
+                                            alt={item?.name || "User"}
+                                            className="w-12 h-12 rounded-full"
+                                        />
                                         <ListItemText primary={item.name} className={` ${active == index ? "text-white" : "text-gray-600"} pl-2`} />
                                     </ListItemButton>
                                 </ListItem>
