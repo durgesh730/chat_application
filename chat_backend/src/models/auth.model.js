@@ -32,23 +32,6 @@ const authSchema = new mongoose.Schema({
         required: [true, "Please provide Password"],
         trim: true,
     },
-    address: {
-        type: String,
-        required: false
-    },
-    city: {
-        type: String,
-        required: false
-    },
-    pincode: {
-        type: String,
-        required: false
-    },
-    country: {
-        type: String,
-        required: false,
-        default: "India"
-    },
     telephone: {
         type: String,
         required: [false, "Please provide telephone Number"],

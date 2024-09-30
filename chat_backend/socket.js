@@ -60,6 +60,7 @@ const setupSocketIO = (server) => {
         const roomId = generateRoomId(senderId, receiverId);
         io.to(roomId).emit('messageReceived', newMessage);
         console.log(`Message sent from ${senderId} to ${receiverId}`);
+
       } catch (error) {
         console.error('Error saving message:', error);
         socket.emit('error', { message: 'Error saving message' });
