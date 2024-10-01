@@ -10,17 +10,23 @@ import { useAuth } from "../../../context/AuthContext";
 import EditIcon from '@mui/icons-material/Edit';
 import Logout from '@mui/icons-material/Logout';
 import LongMenu from "../../custom/LongMenu";
-
+import { Drawer } from "@mui/material";
+import ProfileUI from "../profileUI.js/ProfileUI";
 
 const drawerWidth = 340;
 export default function SideDrawer() {
     const [active, setActive] = React.useState("allStocks")
     const { state } = useGetAllUser()
-    const { setReceiver } = useAuth()
+    const { setReceiver, user , logout} = useAuth()
+    const [openDrawer, setOpenDrawer] = React.useState(false)
 
     const handleOptions = (option) => {
+        if (option.id == 1) {
+            setOpenDrawer(true)
+        } else if(option.id == 2){
+            logout()
+        }
         console.log('Selected option:', option);
-        // Add your handling logic here (e.g., edit or delete action)
     };
 
     const options = [
@@ -77,6 +83,15 @@ export default function SideDrawer() {
                     </List>
                 </Box>
             </Box>
+
+            <Drawer PaperProps={{
+                sx: { minWidth: "30%" }
+            }}
+                anchor="right"
+                open={openDrawer}
+                onClose={() => setOpenDrawer(false)}>
+                <ProfileUI profile={user} />
+            </Drawer>
         </>
     );
 }

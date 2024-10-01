@@ -3,6 +3,8 @@ import Message from "../features/Message";
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import { useAuth } from "../context/AuthContext";
 import LongMenu from "../component/custom/LongMenu";
+import { Drawer } from '@mui/material';
+import ProfileUI from '../component/ui/profileUI.js/ProfileUI';
 
 // const socket = io('http://localhost:5500');
 const socket = io('https://chat-application-1-b4z4.onrender.com');
@@ -14,7 +16,7 @@ const Chat = () => {
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState("");
   const messagesEndRef = useRef(null);
-  const [profileOpenDrawer, setProfileOpenDrawer] = useState(false)
+  const [openDrawer, setOpenDrawer] = useState(false)
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -88,15 +90,14 @@ const Chat = () => {
   }, [inputMessage, receiverId, senderId]);
 
   const handleOptions = (option) => {
-    setProfileOpenDrawer(true)
-    console.log('Selected option:', option);
+    setOpenDrawer(true)
+    console.log('Selected option:', option, 'openDrawer option: ===>>', openDrawer);
   };
 
   const options = [
     { id: 1, title: 'Info', color: 'black', line: true },
     { id: 2, title: 'Clear Chat', color: 'black', line: false },
   ];
-
 
   return (
     <>
@@ -113,9 +114,7 @@ const Chat = () => {
           </div>
         </div>
 
-        {/* <div> */}
-          <LongMenu options={options} handleOptions={handleOptions} />
-        {/* </div> */}
+        <LongMenu options={options} handleOptions={handleOptions} />
       </div>
 
       <div className="flex flex-col px-6 pb-4 pt-4 h-screen">
@@ -149,6 +148,16 @@ const Chat = () => {
           </button>
         </div>
       </div>
+
+      <Drawer PaperProps={{
+        sx: { minWidth: "30%" }
+      }}
+        open={openDrawer}
+        onClose={() => setOpenDrawer(false)}>
+        <ProfileUI
+          profile={receiver}
+        />
+      </Drawer>
     </>
   );
 };
