@@ -1,8 +1,8 @@
 import axios from "axios";
 
 // Using environment variable for API URL
-// const apiUrl = "http://localhost:5500/api/v1/";
-const apiUrl = "https://chat-application-1-b4z4.onrender.com/api/v1/";
+const apiUrl = "http://localhost:5500/api/v1/";
+// const apiUrl = "https://chat-application-1-b4z4.onrender.com/api/v1/";
 
 const getAuthToken = () => {
     try {
