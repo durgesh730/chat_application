@@ -11,7 +11,7 @@ const ProfileUI = ({ profile }) => {
                 />
                 <div className="text-center w-full mt-4 text-[#202142]">
                     <div>
-                        <span>{profile.name}</span> <br/>
+                        <span>{profile.name}</span><br/>
                         <span>{profile.email}</span>
                     </div>
                 </div>
