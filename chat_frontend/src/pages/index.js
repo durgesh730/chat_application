@@ -6,8 +6,8 @@ import LongMenu from "../component/custom/LongMenu";
 import ProfileUI from '../component/ui/profileUI.js/ProfileUI';
 import React, { useEffect, useRef, useState, useCallback } from "react";
 
-const socket = io('http://localhost:5500');
-// const socket = io('https://chat-application-1-b4z4.onrender.com');
+// const socket = io('http://localhost:5500');
+const socket = io('https://chat-application-1-b4z4.onrender.com');
 
 const Chat = () => {
   const { receiver, user } = useAuth();
