@@ -1,5 +1,4 @@
 const mongoose = require("mongoose")
-
 const MONGO_URI = process.env.MONGODB_CONNECTION_STRING
 
 module.exports = async () => {
@@ -12,3 +11,5 @@ module.exports = async () => {
         console.log(`Database not Connected`)
     }
 }
+
+

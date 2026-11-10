@@ -100,9 +100,13 @@ const loginWithEmailAndPass = async (email, password) => {
         throw new ErrorResponse("Password is incorrect", 400)
     }
 
+    if (!user.username || !user.uniqueId) {
+        await user.save();
+    }
+
     const token = jwt.sign({
-        name: user.name,
-        email: user.email,
+        username: user.username,
+        uniqueId: user.uniqueId,
         user_id: user._id,
     },
         JWT_SECRET, {

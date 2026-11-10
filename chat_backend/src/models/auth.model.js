@@ -1,7 +1,23 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
+const crypto = require("crypto");
 
 const authSchema = new mongoose.Schema({
+    username: {
+        type: String,
+        trim: true,
+        lowercase: true,
+        unique: true,
+        sparse: true,
+        match: [/^[a-zA-Z0-9_.]+$/, "Username can only contain letters, numbers, underscores and periods"],
+    },
+    uniqueId: {
+        type: String,
+        trim: true,
+        unique: true,
+        sparse: true,
+        index: true,
+    },
     name: {
         type: String,
         trim: true,
@@ -11,7 +27,7 @@ const authSchema = new mongoose.Schema({
     profile_image: {
         type: String,
         trim: true,
-        default: `https://ui-avatars.com/api/?background=random&size=128&rounded=true&format=png&name=${this.firstName}`,
+        default: null,
     },
     email: {
         type: String,
@@ -21,7 +37,7 @@ const authSchema = new mongoose.Schema({
         ],
         unique: true,
         lowercase: true,
-        required: [true, "Please provide a email address"],
+        required: [true, "Please provide an email address"],
     },
     emailVerified: {
         type: Boolean,
@@ -34,13 +50,22 @@ const authSchema = new mongoose.Schema({
     },
     telephone: {
         type: String,
-        required: [false, "Please provide telephone Number"],
+        required: false,
         trim: true,
         unique: false,
     },
     active: {
         type: Boolean,
-        default: true
+        default: true,
+    },
+    isOnline: {
+        type: Boolean,
+        default: false,
+        index: true,
+    },
+    lastSeen: {
+        type: Date,
+        default: Date.now,
     },
     resetToken: {
         token: {
@@ -52,21 +77,25 @@ const authSchema = new mongoose.Schema({
             default: null,
         },
     },
-},
-    { timestamps: true }
-);
+}, { timestamps: true });
+
+authSchema.index({ username: 1 }, { unique: true, sparse: true });
+authSchema.index({ uniqueId: 1 }, { unique: true, sparse: true });
 
 authSchema.statics.isEmailTaken = async function (email, excludeUserId) {
     const user = await this.findOne({ email, _id: { $ne: excludeUserId } });
-    return !!user; // return true if user is not null
+    return !!user;
 };
 
-authSchema.statics.isTelephoneTaken = async function (
-    telephone,
-    excludeUserId
-) {
+authSchema.statics.isUsernameTaken = async function (username, excludeUserId) {
+    const user = await this.findOne({ username: username.toLowerCase(), _id: { $ne: excludeUserId } });
+    return !!user;
+};
+
+authSchema.statics.isTelephoneTaken = async function (telephone, excludeUserId) {
+    if (!telephone) return false;
     const user = await this.findOne({ telephone, _id: { $ne: excludeUserId } });
-    return !!user; // return true if user is not null
+    return !!user;
 };
 
 authSchema.statics.getEmails = async function (userIds) {
@@ -84,17 +113,28 @@ authSchema.methods.changePassword = async function (password) {
 };
 
 authSchema.pre("save", async function (next) {
-    if (
-        this.isModified("name") &&
-        this.profile_image?.includes("ui-avatars.com") || this.profile_image?.includes("ui-avatars.com")
-    ) {
-        this.profile_image = `https://ui-avatars.com/api/?background=random&size=128&rounded=true&format=png&name=${this.name}`;
+    if (!this.uniqueId) {
+        this.uniqueId = `u_${crypto.randomBytes(4).toString("hex")}`;
+    }
+
+    if (!this.username) {
+        const base = this.email
+            ? this.email.split("@")[0].replace(/[^a-zA-Z0-9_.]/g, "")
+            : "user";
+        const suffix = crypto.randomBytes(2).toString("hex");
+        this.username = `${base.slice(0, 15)}_${suffix}`.toLowerCase();
+    }
+
+    if (!this.profile_image || this.profile_image.includes("ui-avatars.com") || this.profile_image.includes("undefined")) {
+        const avatarName = encodeURIComponent(this.username || 'user');
+        this.profile_image = `https://ui-avatars.com/api/?background=random&size=128&rounded=true&format=png&name=${avatarName}`;
     }
 
     if (!this.isModified("password")) {
-        next();
+        return next();
     }
     this.password = await bcrypt.hash(this.password, 10);
+    next();
 });
 
 const authModel = mongoose.model("user", authSchema);

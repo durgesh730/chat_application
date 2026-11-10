@@ -74,15 +74,18 @@ const resetPassword = asyncHandler(async (req, res) => {
  * @returns {Object} - JSON response containing the Auth's details.
  */
 const validateAuth = asyncHandler(async (req, res) => {
-    console.log("user")
     const userId = req.user_detail._id;
     if (!userId) {
-        throw new ErrorResponse("User Not Found", 400)
+        throw new ErrorResponse("User Not Found", 400);
     }
 
-    const data = await Auth.findById(userId).select('-password -resetToken -emailVerified')
-    return res.status(200).json({ success: true, data });
-})
+    const user = await Auth.findById(userId).select('-password -resetToken -emailVerified');
+    if (user && (!user.username || !user.uniqueId)) {
+        await user.save(); // triggers pre-save to auto-generate username and uniqueId
+    }
+
+    return res.status(200).json({ success: true, data: user });
+});
 
 /**
  * Updates the profile of the authenticated user.
@@ -98,33 +101,47 @@ const updateProfile = asyncHandler(async (req, res) => {
 })
 
 /**
- * Retrieves a paginated list of all users.
+ * Retrieves a paginated list of all users by their public profile.
+ * High-performance (lean) and strictly hides email, real name, and phone.
  * @param {Object} req - Express request object containing pagination parameters in query string (`page` and `limit`).
  * @param {Object} res - Express response object.
- * @returns {Object} - JSON response containing paginated user data and pagination information.
+ * @returns {Object} - JSON response containing paginated user data.
  */
 
 const getAllUsers = asyncHandler(async (req, res) => {
     const userId = req.user_detail._id;
-    // Get pagination parameters from query string
-    const page = parseInt(req.query.page) || 1; // Default to page 1
-    const limit = parseInt(req.query.limit)
-
-    // Calculate the number of documents to skip
+    const page = Math.max(1, parseInt(req.query.page) || 1);
+    const limit = Math.min(100, Math.max(1, parseInt(req.query.limit) || 20));
     const skip = (page - 1) * limit;
 
-    const users = await Auth.find({ _id: { $ne: userId } }).select('-password -resetToken').skip(skip).limit(limit)
-    const totalItems = await Auth.countDocuments();
+    const filter = { _id: { $ne: userId } };
+    if (req.query.search && req.query.search.trim()) {
+        const term = req.query.search.trim().replace(/^@/, '');
+        filter.$or = [
+            { username: { $regex: term, $options: 'i' } },
+            { uniqueId: { $regex: term, $options: 'i' } },
+        ];
+    }
+
+    // High performance lean projection: strictly hides email, phone, name
+    const users = await Auth.find(filter)
+        .select('_id username uniqueId profile_image isOnline lastSeen')
+        .sort({ isOnline: -1, lastSeen: -1 })
+        .skip(skip)
+        .limit(limit)
+        .lean();
+
+    const totalItems = await Auth.countDocuments(filter);
 
     return res.status(200).json({
         success: true,
         data: users,
         currentPage: page,
         totalPages: Math.ceil(totalItems / limit),
-        totalItems: totalItems,
-        limit
+        totalItems,
+        limit,
     });
-})
+});
 
 /**
  * Deletes a user account by its ID.

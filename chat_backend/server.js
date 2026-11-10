@@ -1,3 +1,4 @@
+require('dotenv').config();
 //<----------------------- Database connect ---------------------->
 require("./src/database/init");
 

@@ -1,12 +1,26 @@
-const express = require("express")
-const router = express.Router()
-const validate = require("../../middleware/validate")
-const { AuthController } = require("../../controllers")
-const { AuthValidation } = require("../../validations")
+const express = require('express');
+const router = express.Router();
+const { MessageController } = require('../../controllers');
 
-router
-    .route("/register")
-    .post(validate(AuthValidation.newRegister),
-        AuthController.newRegister)
+router.route('/')
+  .get(MessageController.allMessage);
 
-module.exports = router
+router.route('/send')
+  .post(MessageController.sendMessage);
+
+router.route('/upload')
+  .post(MessageController.uploadMedia);
+
+router.route('/clear')
+  .post(MessageController.clearChat);
+
+router.route('/conversations')
+  .get(MessageController.getConversations);
+
+router.route('/:id')
+  .delete(MessageController.deleteMessage);
+
+router.route('/react/:id')
+  .post(MessageController.reactMessage);
+
+module.exports = router;

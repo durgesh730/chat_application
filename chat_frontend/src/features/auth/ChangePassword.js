@@ -21,6 +21,7 @@ const ChangePassword = () => {
             return showError("Token not found in URL. Please provide the token to reset your Password")
         }
         setParamValue(param);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [state]);
 
     // console.log("paramValue =======>>>>", paramValue)
@@ -31,6 +32,7 @@ const ChangePassword = () => {
             { test: (p) => /[0-9]/.test(p), message: "Password must contain at least one number" },
             { test: (p) => /[a-z]/.test(p), message: "Password must contain one lower case character" },
             { test: (p) => /[A-Z]/.test(p), message: "Password must contain one upper case character" },
+            // eslint-disable-next-line no-useless-escape
             { test: (p) => /[ `!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/.test(p), message: "Password must contain one special character" }
         ];
 
@@ -53,7 +55,7 @@ const ChangePassword = () => {
         e.preventDefault()
         if (!validatePassword(state.password)) {
             return;
-        } else if (state.password != state.cpassword) {
+        } else if (state.password !== state.cpassword) {
             return showError("Pasword not Match")
         } else {
             changePassword({

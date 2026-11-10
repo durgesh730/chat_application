@@ -24,6 +24,7 @@ const Login = () => {
             { test: (p) => /[0-9]/.test(p), message: "Password must contain at least one number" },
             { test: (p) => /[a-z]/.test(p), message: "Password must contain one lower case character" },
             { test: (p) => /[A-Z]/.test(p), message: "Password must contain one upper case character" },
+            // eslint-disable-next-line no-useless-escape
             { test: (p) => /[ `!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/.test(p), message: "Password must contain one special character" }
         ];
 
