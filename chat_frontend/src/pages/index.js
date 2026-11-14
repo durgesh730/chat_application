@@ -3,6 +3,8 @@ import { useAuth } from '../context/AuthContext';
 import { useSocket } from '../context/SocketContext';
 import Message from '../features/Message';
 import EmojiPicker from '../component/custom/EmojiPicker';
+import AiWritingAssistant from '../component/custom/AiWritingAssistant';
+import AiReplySuggestions from '../component/custom/AiReplySuggestions';
 import ProfileUI from '../component/ui/profileUI.js/ProfileUI';
 import fetcher from '../helper/fetcher';
 import { playSentMessageSound } from '../helper/sound';
@@ -20,6 +22,8 @@ import DeleteSweepIcon from '@mui/icons-material/DeleteSweep';
 import WavingHandIcon from '@mui/icons-material/WavingHand';
 import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
+import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
+import QuickreplyOutlinedIcon from '@mui/icons-material/QuickreplyOutlined';
 
 // MUI Components
 import {
@@ -68,6 +72,8 @@ const Chat = () => {
   const [inputMessage, setInputMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [showAiAssistant, setShowAiAssistant] = useState(false);
+  const [showAiReplies, setShowAiReplies] = useState(false);
   const [openProfileDrawer, setOpenProfileDrawer] = useState(false);
   const [replyingTo, setReplyingTo] = useState(null);
 
@@ -116,6 +122,9 @@ const Chat = () => {
   useEffect(() => {
     if (!receiverId) return;
     setConnectionStatus('checking');
+    setShowAiAssistant(false);
+    setShowAiReplies(false);
+    setShowEmojiPicker(false);
 
     fetcher
       .get(`/invite/status/${receiverId}`)
@@ -420,6 +429,8 @@ const Chat = () => {
     setSelectedImage(null);
     setReplyingTo(null);
     setShowEmojiPicker(false);
+    setShowAiAssistant(false);
+    setShowAiReplies(false);
   };
 
   const handleKeyDown = (e) => {
@@ -924,6 +935,25 @@ const Chat = () => {
             />
           )}
 
+          {/* AI Writing Assistant Popup */}
+          {showAiAssistant && (
+            <AiWritingAssistant
+              currentMessage={inputMessage}
+              onApply={(newMessage) => setInputMessage(newMessage)}
+              onClose={() => setShowAiAssistant(false)}
+            />
+          )}
+
+          {/* AI Reply Suggestions Popup */}
+          {showAiReplies && (
+            <AiReplySuggestions
+              receiverId={receiverId}
+              partnerHandle={receiverHandle}
+              onSelectReply={(replyText) => setInputMessage(replyText)}
+              onClose={() => setShowAiReplies(false)}
+            />
+          )}
+
           <input
             type="file"
             ref={fileInputRef}
@@ -939,7 +969,11 @@ const Chat = () => {
             <Tooltip title="Add Emoji" arrow>
               <button
                 type="button"
-                onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                onClick={() => {
+                  setShowEmojiPicker(!showEmojiPicker);
+                  setShowAiAssistant(false);
+                  setShowAiReplies(false);
+                }}
                 className={`p-2 rounded-xl transition-colors ${
                   showEmojiPicker
                     ? 'text-indigo-600 bg-indigo-50'
@@ -953,7 +987,12 @@ const Chat = () => {
             <Tooltip title="Attach photo" arrow>
               <button
                 type="button"
-                onClick={() => fileInputRef.current?.click()}
+                onClick={() => {
+                  fileInputRef.current?.click();
+                  setShowAiAssistant(false);
+                  setShowAiReplies(false);
+                  setShowEmojiPicker(false);
+                }}
                 className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-200/60 rounded-xl transition-colors"
               >
                 <AttachFileIcon sx={{ fontSize: 22 }} />
@@ -972,6 +1011,44 @@ const Chat = () => {
               onChange={handleInputChange}
               onKeyDown={handleKeyDown}
             />
+
+            {/* AI Writing Assistant Button */}
+            <Tooltip title="AI Writing Assistant (Grammar & Rewrite)" arrow>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowAiAssistant((prev) => !prev);
+                  setShowAiReplies(false);
+                  setShowEmojiPicker(false);
+                }}
+                className={`p-2 rounded-xl transition-all ${
+                  showAiAssistant
+                    ? 'text-indigo-600 bg-indigo-100 ring-1 ring-indigo-400'
+                    : 'text-gray-400 hover:text-indigo-600 hover:bg-indigo-50/70'
+                }`}
+              >
+                <AutoAwesomeIcon sx={{ fontSize: 20 }} />
+              </button>
+            </Tooltip>
+
+            {/* AI Reply Suggestions Button */}
+            <Tooltip title="AI Reply Suggestions (Gemini Context)" arrow>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowAiReplies((prev) => !prev);
+                  setShowAiAssistant(false);
+                  setShowEmojiPicker(false);
+                }}
+                className={`p-2 rounded-xl transition-all ${
+                  showAiReplies
+                    ? 'text-violet-600 bg-violet-100 ring-1 ring-violet-400'
+                    : 'text-gray-400 hover:text-violet-600 hover:bg-violet-50/70'
+                }`}
+              >
+                <QuickreplyOutlinedIcon sx={{ fontSize: 20 }} />
+              </button>
+            </Tooltip>
 
             <button
               type="submit"

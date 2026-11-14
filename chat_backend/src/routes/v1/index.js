@@ -4,6 +4,7 @@ const auth = require('./auth.route')
 const apiAuthMiddleware = require('../../middleware/Api-auth.middleware').auth;
 const message = require("./message.route")
 const invite = require("./invite.route")
+const ai = require("./ai.route")
 
 const defaultRoutes = [
     {
@@ -20,6 +21,10 @@ const authRoutes = [
     {
         path: "/invite",
         route: invite
+    },
+    {
+        path: "/ai",
+        route: ai
     },
 ]
 

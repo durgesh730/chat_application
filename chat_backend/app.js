@@ -30,7 +30,9 @@ const cors = require("cors")
 app.use(cors())
 
 //<---------------------------- main route setup ------------------------>
+const apiAuthMiddleware = require('./src/middleware/Api-auth.middleware').auth;
 app.use("/api/v1", require('./src/routes/v1'));
+app.use("/api/ai", apiAuthMiddleware, require('./src/routes/v1/ai.route'));
 app.get('/', (req, res) => res.status(200).send("Hello Durgesh !"))
 
 
